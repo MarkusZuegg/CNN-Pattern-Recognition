@@ -1,0 +1,1 @@
+salloc --nodes=1 --ntasks-per-node=1 --job-name=TEST --time=05:00:00 --partition=vgpu srun --export=PATH,TERM,HOME,LANG --pty /bin/bash -l
