@@ -2,17 +2,14 @@ import torch
 from torch import nn
 import pytorch_lightning as pl
 import torch.nn.functional as F
-from torchvision import datasets, transforms
+# from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import SGD
-import numpy as np
-import matplotlib.pyplot as plt
 import torchmetrics
 import torchvision
 from torchvision.transforms import Compose, ToTensor, Normalize, RandomHorizontalFlip, RandomCrop
 from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
-from pl_bolts.datamodules import CIFAR10DataModule
-from torch import flatten
+# from pl_bolts.datamodules import CIFAR10DataModule
 
 class BasicBlock(nn.Module):
     expansion = 1
