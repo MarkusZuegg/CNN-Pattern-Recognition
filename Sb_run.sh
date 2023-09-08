@@ -6,7 +6,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --partition=vgpu
 #SBATCH --job-name="CIFAR10"
-#SBATCH --mail-user=s4744924@student.uq.edu.au
+# SBATCH --mail-user=s4744924@student.uq.edu.au
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL

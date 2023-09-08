@@ -126,7 +126,7 @@ class load_CIFAR10data(pl.LightningDataModule):
         self.batch_size = batch_size
 
         #! this could be where issue is
-        self.train_transforms = torchvision.transforms.Compose([ 
+        self.train_transform = torchvision.transforms.Compose([ 
                                 RandomCrop(32, padding=4),
                                 RandomHorizontalFlip(),
                                 ToTensor(),
