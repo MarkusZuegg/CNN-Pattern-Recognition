@@ -87,13 +87,6 @@ class ResNet(pl.LightningModule):
         out = out.view(out.size(0), -1)
         output = self.linear(out)
         return output
-    
-    def configure_optimizers_old(self): #! RECHECK THIS FUNCTION, might want to make manual optimization
-        # where is the backwards optimization
-        optimizer = SGD(self.parameters(), lr=self.lr, momentum=0.9, weight_decay=5e-4,)
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, self.lr, epochs=self.trainer.max_epochs, 
-                                                        steps_per_epoch = 45000 // self.trainer.datamodule.batch_size )
-        return [optimizer], [scheduler]
         
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(
@@ -102,7 +95,7 @@ class ResNet(pl.LightningModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        steps_per_epoch = 45000 // BATCH_SIZE
+        steps_per_epoch = 236 #45000 // BATCH_SIZE
         scheduler_dict = {
             "scheduler": torch.optim.lr_scheduler.OneCycleLR(
                 optimizer,
