@@ -1,6 +1,8 @@
+from typing import Any
 import torch
 from torch import nn
 import pytorch_lightning as pl
+from pytorch_lightning import seed_everything
 import torch.nn.functional as F
 # from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, TensorDataset
@@ -10,6 +12,9 @@ import torchvision
 from torchvision.transforms import Compose, ToTensor, Normalize, RandomHorizontalFlip, RandomCrop
 from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
 # from pl_bolts.datamodules import CIFAR10DataModule
+
+seed_everything(7)
+BATCH_SIZE = 256
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -48,6 +53,7 @@ class BasicBlock(nn.Module):
 class ResNet(pl.LightningModule):
     def __init__(self, block, num_blocks, num_classes, lr):
         super().__init__()
+        self.save_hyperparameters()
         self.classes = num_classes
         self.in_planes = 64
         self.lr = lr
@@ -82,12 +88,31 @@ class ResNet(pl.LightningModule):
         output = self.linear(out)
         return output
     
-    def configure_optimizers(self): #! RECHECK THIS FUNCTION, might want to make manual optimization
+    def configure_optimizers_old(self): #! RECHECK THIS FUNCTION, might want to make manual optimization
         # where is the backwards optimization
         optimizer = SGD(self.parameters(), lr=self.lr, momentum=0.9, weight_decay=5e-4,)
         scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, self.lr, epochs=self.trainer.max_epochs, 
                                                         steps_per_epoch = 45000 // self.trainer.datamodule.batch_size )
         return [optimizer], [scheduler]
+        
+    def configure_optimizers(self):
+        optimizer = torch.optim.SGD(
+            self.parameters(),
+            lr=self.hparams.lr,
+            momentum=0.9,
+            weight_decay=5e-4,
+        )
+        steps_per_epoch = 45000 // BATCH_SIZE
+        scheduler_dict = {
+            "scheduler": torch.optim.lr_scheduler.OneCycleLR(
+                optimizer,
+                0.1,
+                epochs=self.trainer.max_epochs,
+                steps_per_epoch=steps_per_epoch,
+            ),
+            "interval": "step",
+        }
+        return {"optimizer": optimizer, "lr_scheduler": scheduler_dict}
     
     def training_step(self, batch, batch_idx):
         x,y = batch
@@ -149,9 +174,8 @@ class load_CIFAR10data(pl.LightningDataModule):
         return DataLoader(self.test, self.batch_size)
     
 def main():
-    batch_size = 244
     max_epochs = 25
-    data = load_CIFAR10data(batch_size)
+    data = load_CIFAR10data(BATCH_SIZE)
     #  data_new = CIFAR10_datamodule(batch_size)
     mod = ResNet18()
     trainer = pl.Trainer(max_epochs=max_epochs, accelerator='gpu', devices=1)
