@@ -1,4 +1,3 @@
-from typing import Any
 import torch
 from torch import nn
 import pytorch_lightning as pl
@@ -11,7 +10,12 @@ import torchmetrics
 import torchvision
 from torchvision.transforms import Compose, ToTensor, Normalize, RandomHorizontalFlip, RandomCrop
 from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
-# from pl_bolts.datamodules import CIFAR10DataModule
+import pandas as pd
+import seaborn as sn
+from IPython.core.display import display
+from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.callbacks.progress import TQDMProgressBar
+from pytorch_lightning.loggers import CSVLogger
 
 seed_everything(7)
 BATCH_SIZE = 256
@@ -168,11 +172,29 @@ class load_CIFAR10data(pl.LightningDataModule):
     
 def main():
     max_epochs = 50
+
+    #loading data
     data = load_CIFAR10data(BATCH_SIZE)
-    #  data_new = CIFAR10_datamodule(batch_size)
+
+    #creating model
     mod = ResNet18()
-    trainer = pl.Trainer(max_epochs=max_epochs, accelerator='gpu', devices=1)
+
+    #train and test model
+    trainer = pl.Trainer(max_epochs=max_epochs, 
+                         accelerator='gpu', 
+                         devices=1,
+                         logger=CSVLogger(save_dir="logs/"),
+                        callbacks=[LearningRateMonitor(logging_interval="step"), 
+                        TQDMProgressBar(refresh_rate=10)])
     trainer.fit(mod, data)
     trainer.test(mod, data)
+
+    #get metrics for plotting hyper parameters
+    metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
+    del metrics["step"]
+    metrics.set_index("epoch", inplace=True)
+    display(metrics.dropna(axis=1, how="all").head())
+    sn.relplot(data=metrics, kind="line")
+
 
 if __name__ == '__main__': main()
