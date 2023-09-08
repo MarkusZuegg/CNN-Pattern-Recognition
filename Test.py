@@ -149,8 +149,8 @@ class load_CIFAR10data(pl.LightningDataModule):
         return DataLoader(self.test, self.batch_size)
     
 def main():
-    batch_size = 128
-    max_epochs = 1
+    batch_size = 244
+    max_epochs = 25
     data = load_CIFAR10data(batch_size)
     #  data_new = CIFAR10_datamodule(batch_size)
     mod = ResNet18()
