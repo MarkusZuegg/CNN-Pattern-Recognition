@@ -11,8 +11,7 @@ time=0-00:30:00
 #SBATCH --mail-type=FAIL
 #SBATCH —output=output_dir/%j.out
 
-module load cuda/11.8
+module load cuda
 conda activate pytorch2
 
-# python train_model.py
-echo hello world 
+srun python Test.py
