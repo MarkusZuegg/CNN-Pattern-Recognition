@@ -154,7 +154,7 @@ def main():
     data = load_CIFAR10data(batch_size)
     #  data_new = CIFAR10_datamodule(batch_size)
     mod = ResNet18()
-    trainer = pl.Trainer(max_epochs=max_epochs)
+    trainer = pl.Trainer(max_epochs=max_epochs, accelerator='gpu', devices=1)
     trainer.fit(mod, data)
     trainer.test(mod, data)
 
