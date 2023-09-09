@@ -7,7 +7,7 @@
 #SBATCH --partition=vgpu
 #SBATCH --job-name="CIFAR10"
 # SBATCH --mail-user=s4744924@student.uq.edu.au
-#SBATCH --mail-type=BEGIN
+# SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
 #SBATCH --output=x%j.out
@@ -16,4 +16,4 @@
 module load cuda
 conda activate pytorch2
 
-srun python Test.py
+srun python CIFAR10.py
