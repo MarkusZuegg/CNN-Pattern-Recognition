@@ -154,7 +154,7 @@ class load_CIFAR10data(pl.LightningDataModule):
     def __init__(self, batch_size):
         super().__init__()
         self.batch_size = batch_size
-        self.num_workers = 4
+        # self.num_workers = 4
 
         #set up transform for train split
         self.train_transform = torchvision.transforms.Compose([ 
@@ -180,13 +180,13 @@ class load_CIFAR10data(pl.LightningDataModule):
         print('Data loaded')
 
     def train_dataloader(self):
-        return DataLoader(self.train, self.batch_size, num_workers=self.num_workers)    
+        return DataLoader(self.train, self.batch_size)    
 
     def test_dataloader(self):
-        return DataLoader(self.test, self.batch_size, num_workers=self.num_workers)
+        return DataLoader(self.test, self.batch_size)
     
     def val_dataloader(self):
-        return DataLoader(self.test, self.batch_size, num_workers=self.num_workers)
+        return DataLoader(self.test, self.batch_size)
     
 def main():
     #set up variables
