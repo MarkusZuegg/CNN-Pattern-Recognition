@@ -111,7 +111,9 @@ class ResNet(pl.LightningModule):
                 optimizer=optimizer,
                 max_lr=0.1,
                 epochs=self.trainer.max_epochs,
-                steps_per_epoch=steps_per_epoch,),
+                # steps_per_epoch=steps_per_epoch,
+                total_steps=self.trainer.estimated_stepping_batches
+                ),
                 "interval": "step",}
         return {"optimizer": optimizer, "lr_scheduler": scheduler_dict}
     
