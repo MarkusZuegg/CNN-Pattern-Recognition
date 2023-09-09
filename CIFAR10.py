@@ -191,7 +191,7 @@ class load_CIFAR10data(pl.LightningDataModule):
     
 def main():
     #set up variables
-    max_epochs = 10
+    max_epochs = 30
 
     #loading data
     data = load_CIFAR10data(BATCH_SIZE)
