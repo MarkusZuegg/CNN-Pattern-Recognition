@@ -111,9 +111,8 @@ class ResNet(pl.LightningModule):
                 optimizer=optimizer,
                 max_lr=0.1,
                 epochs=self.trainer.max_epochs,
-                # steps_per_epoch=steps_per_epoch,
-                total_steps=self.trainer.estimated_stepping_batches
-                ),
+                #gets total steps that will use optimiser.step()
+                total_steps=self.trainer.estimated_stepping_batches),
                 "interval": "step",}
         return {"optimizer": optimizer, "lr_scheduler": scheduler_dict}
     
@@ -218,8 +217,7 @@ def main():
     metrics.set_index("epoch", inplace=True)
     display(metrics.dropna(axis=1, how="all").head())
     plot = sn.relplot(data=metrics, kind="line")
-    plot_fig = plot.get_fig()
-    plot_fig.savefig(loc = trainer.logger.log_dir)
+    plot.savefig('plot.png')
 
 
 if __name__ == '__main__': main()
