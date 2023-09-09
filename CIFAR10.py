@@ -213,9 +213,9 @@ def main():
 
     #get metrics for plotting lr, loss, acc
     metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
-    # del metrics["step"]
-    # metrics.set_index("epoch", inplace=True)
-    # display(metrics.dropna(axis=1, how="all").head())
+    del metrics["step"]
+    metrics.set_index("epoch", inplace=True)
+    display(metrics.dropna(axis=1, how="all").head())
     plot = sn.relplot(data=metrics, kind="line")
     plot.savefig(f"{trainer.logger.log_dir}/graph.png")
 
