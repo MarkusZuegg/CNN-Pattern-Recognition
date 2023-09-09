@@ -19,7 +19,7 @@ from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import CSVLogger
 
-# seed_everything(7)
+seed_everything(7)
 BATCH_SIZE = 256
 
 class BasicBlock(nn.Module):
@@ -101,7 +101,7 @@ class ResNet(pl.LightningModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        steps_per_epoch = self.trainer.tra #45000 // BATCH_SIZE
+        steps_per_epoch = self.trainer.num_training_batches #45000 // BATCH_SIZE
         scheduler_dict = {
             "scheduler": torch.optim.lr_scheduler.OneCycleLR(
                 optimizer,
