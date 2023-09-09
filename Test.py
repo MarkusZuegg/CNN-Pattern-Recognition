@@ -101,7 +101,7 @@ class ResNet(pl.LightningModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        steps_per_epoch = 236 #45000 // BATCH_SIZE
+        steps_per_epoch = len(self.trainer.train)/BATCH_SIZE #45000 // BATCH_SIZE
         scheduler_dict = {
             "scheduler": torch.optim.lr_scheduler.OneCycleLR(
                 optimizer,
@@ -126,7 +126,7 @@ class ResNet(pl.LightningModule):
         loss = F.cross_entropy(out,y)
         out = nn.Softmax(-1)(out) 
         logits = torch.argmax(out,dim=1)
-        acc = self.accuracy(logits, y) #! maybe change this to github acc function     
+        acc = self.accuracy(logits, y)  
 
         if stage:
             self.log(f"{stage}_loss", loss, prog_bar=True)
@@ -148,8 +148,8 @@ class load_CIFAR10data(pl.LightningDataModule):
     def __init__(self, batch_size):
         super().__init__()
         self.batch_size = batch_size
+        self.num_workers = 4
 
-        #! this could be where issue is
         self.train_transform = torchvision.transforms.Compose([ 
                                 RandomCrop(32, padding=4),
                                 RandomHorizontalFlip(),
@@ -162,15 +162,16 @@ class load_CIFAR10data(pl.LightningDataModule):
         self.test = torchvision.datasets.CIFAR10(root='./CIFAR10_data', download=True, 
                                                 train=False, transform=self.test_transform)
         print('Data loaded')
+        print(len(self.train))
 
     def train_dataloader(self):
-        return DataLoader(self.train, self.batch_size)    
+        return DataLoader(self.train, self.batch_size, num_workers=self.num_workers)    
 
     def test_dataloader(self):
-        return DataLoader(self.test, self.batch_size)
+        return DataLoader(self.test, self.batch_size, num_workers=self.num_workers)
     
     def val_dataloader(self):
-        return DataLoader(self.test, self.batch_size)
+        return DataLoader(self.test, self.batch_size, num_workers=self.num_workers)
     
 def main():
     max_epochs = 10
@@ -197,7 +198,8 @@ def main():
     metrics.set_index("epoch", inplace=True)
     display(metrics.dropna(axis=1, how="all").head())
     plot = sn.relplot(data=metrics, kind="line")
-    plot.save(loc = trainer.logger.log_dir)
+    plot_fig = plot.get_fig()
+    plot_fig.savefig(loc = trainer.logger.log_dir)
 
 
 if __name__ == '__main__': main()
