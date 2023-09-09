@@ -101,7 +101,7 @@ class ResNet(pl.LightningModule):
             momentum=0.9,
             weight_decay=5e-4,
         )
-        steps_per_epoch = self.trainer.num_training_batches #45000 // BATCH_SIZE
+        steps_per_epoch = self.trainer.estimated_stepping_batches #45000 // BATCH_SIZE
         scheduler_dict = {
             "scheduler": torch.optim.lr_scheduler.OneCycleLR(
                 optimizer,
