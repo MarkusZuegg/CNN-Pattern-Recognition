@@ -106,7 +106,7 @@ class ResNet(pl.LightningModule):
             "scheduler": torch.optim.lr_scheduler.OneCycleLR(
                 optimizer,
                 0.1,
-                epochs=self.trainer.max_epochs,
+                # epochs=self.trainer.max_epochs,
                 # steps_per_epoch=steps_per_epoch,
                 total_steps=self.trainer.estimated_stepping_batches,
             ),
