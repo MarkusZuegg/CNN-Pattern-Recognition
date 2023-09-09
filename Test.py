@@ -12,6 +12,8 @@ from torchvision.transforms import Compose, ToTensor, Normalize, RandomHorizonta
 from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
 import pandas as pd
 import seaborn as sn
+from pylab import savefig
+import matplotlib.pyplot as plt
 from IPython.core.display import display
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
@@ -171,7 +173,7 @@ class load_CIFAR10data(pl.LightningDataModule):
         return DataLoader(self.test, self.batch_size)
     
 def main():
-    max_epochs = 50
+    max_epochs = 10
 
     #loading data
     data = load_CIFAR10data(BATCH_SIZE)
@@ -194,7 +196,8 @@ def main():
     del metrics["step"]
     metrics.set_index("epoch", inplace=True)
     display(metrics.dropna(axis=1, how="all").head())
-    sn.relplot(data=metrics, kind="line")
+    plot = sn.relplot(data=metrics, kind="line")
+    plot.save(loc = trainer.logger.log_dir)
 
 
 if __name__ == '__main__': main()
