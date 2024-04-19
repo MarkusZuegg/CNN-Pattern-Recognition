@@ -6,8 +6,7 @@ from torch.utils.data import DataLoader
 from torch.optim import SGD
 import torchmetrics
 import torchvision
-from torchvision.transforms import Compose, ToTensor, RandomHorizontalFlip, RandomCrop
-from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
+from torchvision.transforms import Compose, ToTensor, RandomHorizontalFlip, RandomCrop, Normalize
 import pandas as pd
 import seaborn as sn
 from pylab import savefig
@@ -16,9 +15,6 @@ from IPython.core.display import display
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import CSVLogger
-
-#set batch size
-BATCH_SIZE = 256
 
 class BasicBlock(nn.Module):
     """Creates a block of nn's that will make up resnet"""
@@ -153,17 +149,19 @@ class load_CIFAR10data(pl.LightningDataModule):
     def __init__(self, batch_size):
         super().__init__()
         self.batch_size = batch_size
-        # self.num_workers = 4
+        self.num_workers = 0
 
+        CIFAR10_mean = [0.4914, 0.4822, 0.4465]
+        CIFAR10_std = [0.2470, 0.2435, 0.2616]
         #set up transform for train split
         self.train_transform = torchvision.transforms.Compose([ 
                                 RandomCrop(32, padding=4),
                                 RandomHorizontalFlip(),
                                 ToTensor(),
-                                cifar10_normalization()])
+                                Normalize(CIFAR10_mean, CIFAR10_std)])
         
         #set up transform for test split
-        self.test_transform = Compose([ToTensor(), cifar10_normalization()])
+        self.test_transform = Compose([ToTensor(), Normalize(CIFAR10_mean, CIFAR10_std)])
 
         self.train = torchvision.datasets.CIFAR10(
             root='./CIFAR10_data', 
@@ -179,17 +177,20 @@ class load_CIFAR10data(pl.LightningDataModule):
         print('Data loaded')
 
     def train_dataloader(self):
-        return DataLoader(self.train, self.batch_size)    
+        return DataLoader(self.train, self.batch_size, num_workers=self.num_workers)    
 
     def test_dataloader(self):
-        return DataLoader(self.test, self.batch_size)
+        return DataLoader(self.test, self.batch_size, num_workers=self.num_workers)
     
     def val_dataloader(self):
-        return DataLoader(self.test, self.batch_size)
+        return DataLoader(self.test, self.batch_size, num_workers=self.num_workers)
     
 def main():
     #set up variables
     max_epochs = 30
+
+    #set batch size
+    BATCH_SIZE = 256
 
     #loading data
     data = load_CIFAR10data(BATCH_SIZE)
@@ -213,7 +214,7 @@ def main():
     metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
     del metrics["step"]
     metrics.set_index("epoch", inplace=True)
-    display(metrics.dropna(axis=1, how="all").head())
+    metrics.dropna(axis=1, how="all").head()
     plot = sn.relplot(data=metrics, kind="line")
     plot.savefig(f"{trainer.logger.log_dir}/graph.png")
 
